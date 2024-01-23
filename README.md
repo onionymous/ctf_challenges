@@ -1,2 +1,2 @@
-# ctf_challenges
-ctf challenges written by me
+# ctf challenges
+stuff i wrote
