@@ -6,7 +6,7 @@ plugins {
 android {
     signingConfigs {
         create("release") {
-            storeFile = file("../dicectf2024keystore.jks")
+            storeFile = file("../../dicectf2024keystore.jks")
             storePassword = "pepegaman"
             keyAlias = "dictionary-app-release"
             keyPassword = "pepegaman"

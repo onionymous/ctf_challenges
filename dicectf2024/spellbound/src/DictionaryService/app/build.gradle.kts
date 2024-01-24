@@ -6,6 +6,10 @@ plugins {
 android {
     signingConfigs {
         create("release") {
+            storeFile = file("../../dicectf2024keystore.jks")
+            storePassword = "pepegaman"
+            keyAlias = "dictionary-app-release"
+            keyPassword = "pepegaman"
         }
     }
     namespace = "com.dicectf2024.dictionaryservice"
@@ -28,6 +32,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

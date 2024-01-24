@@ -4,6 +4,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        create("release") {
+            storeFile = file("../attackerappkeystore.jks")
+            storePassword = "pepegaman"
+            keyAlias = "attacker-app-release"
+            keyPassword = "pepegaman"
+        }
+    }
     namespace = "com.dicectf2024.attackerapp"
     compileSdk = 34
 
@@ -27,6 +35,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
