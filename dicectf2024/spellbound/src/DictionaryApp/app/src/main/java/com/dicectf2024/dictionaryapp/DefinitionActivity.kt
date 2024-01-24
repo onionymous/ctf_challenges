@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dicectf2024.dictionaryservice.IDictionaryService
+import com.dicectf2024.dictionaryservice.ISignatureService
 import com.dicectf2024.dictionaryapp.ui.theme.DictionaryAppTheme
 import org.json.JSONObject
 import java.io.IOException
@@ -34,10 +35,13 @@ import java.nio.charset.Charset
 import org.json.JSONArray
 
 class DefinitionActivity : ComponentActivity() {
-    val TAG = "DefinitionActivity"
+    private val TAG: String = "dicectf:DictionaryApp:DefinitionActivity"
 
+    private var signatureService: ISignatureService? = null
     private var dictionaryService: IDictionaryService? = null
-    private var isBound = false
+
+    private var isSignatureServiceBound = false
+    private var isDictionaryServiceBound = false
 
     private var pronunciation by mutableStateOf("")
     private var description by mutableStateOf("")
@@ -45,19 +49,57 @@ class DefinitionActivity : ComponentActivity() {
     private var etymology by mutableStateOf("")
     private var notes by mutableStateOf("")
 
-    private lateinit var connection: ServiceConnection
+    private lateinit var dictionaryServiceConnection: ServiceConnection
+    private val signatureServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
+            val boundSignatureService = ISignatureService.Stub.asInterface(service)
+            signatureService = boundSignatureService
+            isSignatureServiceBound = true
+            Log.d(TAG, "SignatureService: onServiceConnected called")
+
+            val intent = Intent().setComponent(
+                ComponentName(
+                    "com.dicectf2024.dictionaryservice",
+                    "com.dicectf2024.dictionaryservice.DictionaryService"
+                )
+            )
+            val signedIntent = SignedIntent.make(applicationContext, intent, boundSignatureService)
+            val bindingResult =
+                bindService(signedIntent, dictionaryServiceConnection, Context.BIND_AUTO_CREATE)
+            Log.d(TAG, "DictionaryService: binding result=$bindingResult")
+        }
+
+        override fun onServiceDisconnected(componentName: ComponentName) {
+            isSignatureServiceBound = false
+            signatureService = null
+            Log.d(TAG, "SignatureService: onServiceDisconnected called")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val intent = Intent().setComponent(
+            ComponentName(
+                "com.dicectf2024.dictionaryservice",
+                "com.dicectf2024.dictionaryservice.SignatureService"
+            )
+        )
+        val bindingResult = bindService(
+            intent,
+            signatureServiceConnection,
+            Context.BIND_AUTO_CREATE
+        )
+        Log.d(TAG, "SignatureService: binding result=$bindingResult")
+
         val word = getRandomWord()
         Log.d(TAG, "word: $word")
 
-        connection = object : ServiceConnection {
+        dictionaryServiceConnection = object : ServiceConnection {
             override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
                 dictionaryService = IDictionaryService.Stub.asInterface(service)
-                isBound = true
-                Log.d(TAG, "onServiceConnected called")
+                isDictionaryServiceBound = true
+                Log.d(TAG, "DictionaryService: onServiceConnected called")
 
                 dictionaryService?.let {
                     val wordData = it.getData(word)
@@ -68,25 +110,14 @@ class DefinitionActivity : ComponentActivity() {
                     etymology = jsonObject.getString("etymology")
                     notes = jsonObject.getString("notes")
                 }
-
             }
 
             override fun onServiceDisconnected(componentName: ComponentName) {
-                isBound = false
+                isDictionaryServiceBound = false
                 dictionaryService = null
-                Log.d(TAG, "onServiceDisconnected called")
+                Log.d(TAG, "DictionaryService: onServiceDisconnected called")
             }
         }
-
-        val intent = Intent().setComponent(
-            ComponentName(
-                "com.dicectf2024.dictionaryservice",
-                "com.dicectf2024.dictionaryservice.DictionaryService"
-            )
-        )
-        val secureIntent = SecureIntent.make(applicationContext, intent)
-        val bindingResult = bindService(secureIntent, connection, Context.BIND_AUTO_CREATE)
-        Log.d(TAG, "binding result: $bindingResult")
 
         setContent {
             DictionaryAppTheme {
@@ -103,9 +134,14 @@ class DefinitionActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy called")
-        if (isBound) {
-            unbindService(connection)
-            isBound = false
+        if (isSignatureServiceBound) {
+            unbindService(signatureServiceConnection)
+            isSignatureServiceBound = false
+            signatureService = null
+        }
+        if (isDictionaryServiceBound) {
+            unbindService(dictionaryServiceConnection)
+            isDictionaryServiceBound = false
             dictionaryService = null
         }
     }

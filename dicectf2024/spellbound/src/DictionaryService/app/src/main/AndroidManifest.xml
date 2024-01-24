@@ -2,9 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <queries>
-        <package android:name="com.dicectf2024.dictionaryapp" />
-    </queries>
+    <permission
+        android:name="com.dicectf2024.permission.dictionary.BIND_SIGNATURE_SERVICE"
+        android:label="use dictionary app's signature service"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
 
     <application
         android:allowBackup="true"
@@ -19,11 +23,12 @@
         <service
             android:name=".DictionaryService"
             android:enabled="true"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="com.dicectf2024.dictionaryservice.START_DICTIONARY_SERVICE"/>
-            </intent-filter>
-        </service>
+            android:exported="true" />
+        <service
+            android:name=".SignatureService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="com.dicectf2024.permission.dictionary.BIND_SIGNATURE_SERVICE" />
     </application>
 
 </manifest>

@@ -22,7 +22,7 @@ import com.dicectf2024.dictionaryservice.IDictionaryService
 import kotlin.concurrent.thread
 
 class MainActivity : ComponentActivity() {
-    val TAG = "MainActivity"
+    val TAG = "dicectf:AttackerApp:MainActivity"
 
     private var dictionaryService: IDictionaryService? = null
     private var isBound = false
@@ -59,20 +59,20 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // If you just try to bind to the service, you won't be able to supply the PendingIntent
-        // to pass the security check in DictionaryService.
-        // DictionaryService will return null.
-        // Note that the result of bindService will still appear to be true, even if DictionaryService
-        // returns a null Binder.
-        // But you can't call the getDefinition() method to get flag on the null binder.
-        // getFlag()
+        // If you just try to bind to the service, you won't be able to supply the signed intent
+        // extras to pass the security check in DictionaryService and onBind will return null.
+        // Note that the result of bindService will still appear to be true, even if
+        // DictionaryService returns a null Binder. But you can't call the getDefinition() method
+        // to get flag on the null binder.
+//         getFlag()
 
-        // Intended solution is to launch DictionaryApp's activity that binds to DictionaryService
-        // Then wait a while and after DictionaryApp has definition binded to the service, try to
-        // bind again. Since onBind() is only ever called once, this will bypass the identity check
-        // and just return the same binder interface. Now you can call getDefinition() and fetch
-        // flag in onServiceConnected() and print it out
-        // You can also start a service that binds to DictionaryService
+        // Intended solution is to launch DictionaryApp's activity that binds to DictionaryService,
+        // then wait a while and after DictionaryApp has definitely bound to DictionaryService, try
+        // to bind to DictionaryService again from AttackerApp. Since onBind() is only ever called
+        // once, this will bypass the identity check and just return the same binder interface.
+        // Now you can call getDefinition() and fetch flag in onServiceConnected() and print it
+        // out from AttackerApp. Alternatively, you can also start a service that binds to
+        // DictionaryService
         launchDefinitionActivity()
         thread {
             Log.d(TAG, "waiting 10 seconds...")

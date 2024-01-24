@@ -3,9 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <queries>
-        <intent>
-            <action android:name="com.dicectf2024.dictionaryservice.START_DICTIONARY_SERVICE" />
-        </intent>
+        <package android:name="com.dicectf2024.dictionaryapp" />
+        <package android:name="com.dicectf2024.dictionaryservice" />
     </queries>
 
     <application

@@ -9,7 +9,7 @@ import java.io.IOException
 import java.nio.charset.Charset
 
 class DictionaryService : Service() {
-    val TAG = "DictionaryService"
+    private val TAG: String = "dicectf:DictionaryService:DictionaryService"
 
     override fun onCreate() {
         Log.d(TAG, "onCreate called")
@@ -18,7 +18,6 @@ class DictionaryService : Service() {
 
     override fun onBind(intent: Intent): IBinder? {
         Log.d(TAG, "onBind called, intent=$intent")
-
         if (IntentChecker.isSecure(applicationContext, intent)) {
             return binder
         }
