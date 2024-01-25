@@ -1,24 +1,20 @@
 # spellbound (dicectf2024)
 
-misc, android, easy
+android, pwn(?), misc(?) | easy
 
-* you'll probably need [Android Studio](https://developer.android.com/studio)
-* all the apps are tested on Pixel 3a AVD API 34
+* [Android Studio](https://developer.android.com/studio) is recommended
+* challenge apps were tested on Pixel 3a AVD API 34
 
 ## files
 
-`chal.zip` has the files that should be distributed in the challenge download:
-* DictionaryApp.apk (signed app) - same as remote
-* DictionaryService.apk (can be signed or unsigned, doesn't really matter) - modified APK to include fake flag. remote will have real flag
+`spellbound.zip` has the files that should be distributed in the challenge download:
+* DictionaryApp.apk - same as remote
+* DictionaryService.apk - modified APK to include fake flag in resources
 
 There's no obfuscation, we expect people to just go decompile the apks.
 
-The key used to sign the app to create the hardcoded signature in the apps' identity check is included in the repo.
-The key alias is `dictionary-app-release` and the passcode is `pepegaman`, and the keystore password is also `pepegaman`.
-Since this key is pretty related to the challenge the keystore is included in this repo for reproducibility reasons,
-but it goes without saying don't use this keystore for anything important etc.
-
-The example solution attacker app is signed with a different key (also included in the repo for reproducibility reasons).
+Both apps are signed otherwise they won't install on the emulator. The key used to sign the app to create the hardcoded signature in the apps' identity check is included in the repo. Since this key is pretty related to the challenge the keystore is included in this repo for reproducibility reasons,
+but it goes without saying don't use this keystore for anything important etc. The key alias is `dictionary-app-release` and the passcode is `pepegaman`, and the keystore password is also `pepegaman`.
 
 ## description
 
@@ -30,7 +26,7 @@ This app exports two services:
 * SignatureService
 * DictionaryService
 
-SignatureService is only accessible if you have the permission `com.dicectf2024.permission.dictionary.BIND_SIGNATURE_SERVICE` declared in the manifest. This permission is only available to apps signed with the same signing key due to `protectionLevel="signature"`. It's intended that this is only accessible from DictionaryApp, basically.
+SignatureService is only accessible if you have the permission `com.dicectf2024.permission.dictionary.BIND_SIGNATURE_SERVICE` declared in the manifest. This permission is only available to apps signed with the same signing key due to `protectionLevel="signature"`. It's intended that this is only accessible from DictionaryApp.
 
 DictionaryService is the interesting service that serves a bunch of words and their definitions, including the flag. Even though the service is exported, this service is only intended to be bound to from DictionaryApp. To ensure this, it has a permission check in `onBind` that is pretty restrictive:
 1. First, the incoming intent must have two signed extras. It must be signed with a key in DictionaryService's keystore. The only way to achieve this outside the app is through SignatureService, which is only accessible to apps signed with the same signing key.
@@ -40,7 +36,9 @@ DictionaryService is the interesting service that serves a bunch of words and th
 If any of these checks fail, `onBind` will just return `null` as the binder interface and not the actual binder.
 
 ### DictionaryApp
-This app has an exported activity that other apps can launch. The activity will bind to DictionaryService in `onCreate` and then send words to it / receives definitions back, and this gets rendered onscreen.
+This app has an exported activity that other apps can launch. The activity will bind to DictionaryService in `onCreate`, send a word to it, receive a defintion back, and display it onscreen.
+
+Note it also unbinds the services upon navigating away, this is intended so you don't accidentally stumble on the solution if you had DictionaryApp open already while launching AttackerApp directly from Android Studio or something.
 
 ## solution
 
