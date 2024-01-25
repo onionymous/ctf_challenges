@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "dictionary of magic",
+                text = "magic dictionary",
                 style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier.padding(9.dp)
             )
@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier
                     .padding(top = 16.dp)
             ) {
-                Text("surprise me")
+                Text("i'm feeling lucky")
             }
         }
     }

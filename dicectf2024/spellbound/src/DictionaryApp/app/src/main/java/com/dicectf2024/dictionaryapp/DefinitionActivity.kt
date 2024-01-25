@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -131,9 +132,19 @@ class DefinitionActivity : ComponentActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause called")
+        unBindServices()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy called")
+        unBindServices()
+    }
+
+    private fun unBindServices() {
         if (isSignatureServiceBound) {
             unbindService(signatureServiceConnection)
             isSignatureServiceBound = false
