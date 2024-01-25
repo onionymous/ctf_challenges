@@ -22,7 +22,7 @@ import com.dicectf2024.dictionaryservice.IDictionaryService
 import kotlin.concurrent.thread
 
 class MainActivity : ComponentActivity() {
-    val TAG = "dicectf:AttackerApp:MainActivity"
+    val TAG = "dicectf"
 
     private var dictionaryService: IDictionaryService? = null
     private var isBound = false
