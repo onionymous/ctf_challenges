@@ -36,7 +36,7 @@ import java.nio.charset.Charset
 import org.json.JSONArray
 
 class DefinitionActivity : ComponentActivity() {
-    private val TAG: String = "dicectf:DictionaryApp:DefinitionActivity"
+    private val TAG: String = "dicectf.DictionaryApp.DefinitionActivity"
 
     private var signatureService: ISignatureService? = null
     private var dictionaryService: IDictionaryService? = null

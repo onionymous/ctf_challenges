@@ -7,37 +7,42 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 
 object Flag {
-    private const val TAG: String = "dicectf:DictionaryService:Flag"
+    private const val TAG: String = "DictionaryService.Flag"
 
     const val MAGIC_WORD = "flag"
 
-    private fun getRandomString(length: Int) : String {
+    private fun getRandomString(length: Int): String {
         val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
         return (1..length)
             .map { allowedChars.random() }
             .joinToString("")
     }
 
-    fun get(context: Context): String {
+    private fun sharedPreferences(context: Context): SharedPreferences {
         val masterKey: MasterKey = MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
 
-        val sharedPreferences: SharedPreferences = EncryptedSharedPreferences.create(
+        return EncryptedSharedPreferences.create(
             context,
             "secret_preferences",
             masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
+    }
+
+    fun createIfNotExists(context: Context) {
+        val sharedPreferences = sharedPreferences(context)
 
         if (!sharedPreferences.contains(MAGIC_WORD)) {
             val flagToken = getRandomString(16)
+            Log.d(TAG, "Flag token: $flagToken")
             sharedPreferences.edit().putString(MAGIC_WORD, flagToken).apply()
         }
+    }
 
-        val flagToken = sharedPreferences.getString(MAGIC_WORD, "")!!
-        Log.d(TAG, "Flag token: $flagToken")
-        return flagToken
+    fun get(context: Context): String {
+        return sharedPreferences(context).getString(MAGIC_WORD, "")!!
     }
 }

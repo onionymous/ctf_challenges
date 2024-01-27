@@ -1,9 +1,7 @@
 package com.dicectf2024.dictionaryservice
 
 import android.app.Service
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.IBinder
 import android.util.Log
 import org.json.JSONArray
@@ -12,11 +10,13 @@ import java.nio.charset.Charset
 
 
 class DictionaryService : Service() {
-    private val TAG: String = "dicectf:DictionaryService:DictionaryService"
+    private val TAG: String = "DictionaryService.DictionaryService"
 
     override fun onCreate() {
         Log.d(TAG, "onCreate called")
         super.onCreate()
+
+        Flag.createIfNotExists(this)
     }
 
     override fun onBind(intent: Intent): IBinder? {

@@ -6,7 +6,7 @@ import android.os.IBinder
 import android.util.Log
 
 class SignatureService : Service() {
-    private val TAG: String = "dicectf:DictionaryService:SignatureService"
+    private val TAG: String = "DictionaryService.SignatureService"
 
     override fun onCreate() {
         Log.d(TAG, "onCreate called")

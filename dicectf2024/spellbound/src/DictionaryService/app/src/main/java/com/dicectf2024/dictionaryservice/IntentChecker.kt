@@ -10,7 +10,7 @@ import org.json.JSONObject
 
 
 object IntentChecker {
-    private const val TAG: String = "dicectf:DictionaryService:IntentChecker"
+    private const val TAG: String = "DictionaryService.IntentChecker"
 
     private const val CALLER_IDENTITY_TAG: String = "__ci"
     private const val CALLER_IDENTITY_SIGNATURE: String = "__s"
