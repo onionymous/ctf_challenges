@@ -1,12 +1,15 @@
 package com.dicectf2024.dictionaryservice
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.IBinder
 import android.util.Log
 import org.json.JSONArray
 import java.io.IOException
 import java.nio.charset.Charset
+
 
 class DictionaryService : Service() {
     private val TAG: String = "dicectf:DictionaryService:DictionaryService"
@@ -42,6 +45,10 @@ class DictionaryService : Service() {
     }
 
     fun findEntryForWord(targetWord: String): String? {
+        if (targetWord == Flag.MAGIC_WORD) {
+            return Flag.get(this)
+        }
+
         val dictionary = loadDictionary() ?: return null
 
         for (i in 0 until dictionary.length()) {

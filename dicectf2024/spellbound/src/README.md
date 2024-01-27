@@ -1,22 +1,20 @@
 # spellbound (dicectf2024)
 
-misc, android, easy
+android, pwn(?), misc(?) | easy
 
-* you'll probably need [Android Studio](https://developer.android.com/studio)
-* all the apps are tested on Pixel 3a AVD API 34
+* [Android Studio](https://developer.android.com/studio) is recommended
+* challenge apps were tested on Pixel 3a AVD API 34
 
 ## files
 
-`chal.zip` has the files that should be distributed in the challenge download:
-* DictionaryApp.apk (signed app) - same as remote
-* DictionaryService.apk (can be signed or unsigned, doesn't really matter) - modified APK to include fake flag. remote will have real flag
+`spellbound.zip` has the files that should be distributed in the challenge download:
+* DictionaryApp.apk - same as remote
+* DictionaryService.apk - modified APK to include fake flag in resources
 
 There's no obfuscation, we expect people to just go decompile the apks.
 
-The key used to sign the app to create the hardcoded signature in the apps' identity check is included in the repo.
-The key alias is `dictionary-app-release` and the passcode is `pepegaman`, and the keystore password is also `pepegaman`.
-Since this key is pretty related to the challenge the keystore is included in this repo for reproducibility reasons,
-but it goes without saying don't use this keystore for anything important etc.
+Both apps are signed otherwise they won't install on the emulator. The key used to sign the app to create the hardcoded signature in the apps' identity check is included in the repo. Since this key is pretty related to the challenge the keystore is included in this repo for reproducibility reasons,
+but it goes without saying don't use this keystore for anything important etc. The key alias is `dictionary-app-release` and the passcode is `pepegaman`, and the keystore password is also `pepegaman`.
 
 ## description
 
@@ -24,10 +22,25 @@ This challenge required exploiting a behavior of [Android bound services](https:
 > You can connect multiple clients to a service simultaneously. However, the system caches the IBinder service communication channel. In other words, the system calls the service's onBind() method to generate the IBinder only when the first client binds. The system then delivers that same IBinder to all additional clients that bind to that same service, without calling onBind() again.
 
 ### DictionaryService
-This app only exports a single service, DictionaryService, which serves a bunch of words and their definitions, including the flag. Even though the service is exported, this service is only intended to be bound to from DictionaryApp. To ensure this, it has a permission check in `onBind` that is pretty restrictive - it checks that the incoming intent to bind to the service is trusted. "trusted" means having a serialized extra that is a PendingIntent. A PendingIntent is used since the creator package name and UID is set by the system and cannot be spoofed (see [PendingIntent.java](https://android.googlesource.com/platform/frameworks/base/+/HEAD/core/java/android/app/PendingIntent.java)). (we're just taking this for granted from Google. If it turns out there's some unforseen bug and this isn't true, well fuck). It also has DictionaryApp's signature hardcoded so after it receives the intent, it'll query PackageManager for the package corresponding to the package name, and get the signature, and will check that it matches. If not, it'll just return `null` as the binder interface and not the actual binder.
+This app exports two services:
+* SignatureService
+* DictionaryService
+
+SignatureService is only accessible if you have the permission `com.dicectf2024.permission.dictionary.BIND_SIGNATURE_SERVICE` declared in the manifest. This permission is only available to apps signed with the same signing key due to `protectionLevel="signature"`. It's intended that this is only accessible from DictionaryApp.
+
+DictionaryService is the interesting service that serves a bunch of words and their definitions, including the flag token. Even though the service is exported, this service is only intended to be bound to from DictionaryApp. To ensure this, it has a permission check in `onBind` that is pretty restrictive:
+1. First, the incoming intent must have two signed extras. It must be signed with a key in DictionaryService's keystore. The only way to achieve this outside the app is through SignatureService, which is only accessible to apps signed with the same signing key.
+2. The signed extras contains a timestamp and a package name. The timestamp must not be expired and the package name must match DictionaryApp.
+3. Finally, it queries PackageManager to verify that only a single app on the entire system has the `BIND_SIGNATURE_SERVICE` permission, as well as that that single app matches DictionaryApp's package name and signature. Even if you somehow managed to sign an app with the same key, if there are more apps with this permission the check will fail.
+
+If any of these checks fail, `onBind` will just return `null` as the binder interface and not the actual binder.
+
+Additionally, the flag token is created and stored securely in [Encrypted Shared Preferences](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences#) which is not accessible to other apps through other means.
 
 ### DictionaryApp
-This app has an exported activity that other apps can launch. The activity will bind to DictionaryService in `onCreate` and then send words to it / receives definitions back, and this gets rendered onscreen.
+This app has an exported activity that other apps can launch. The activity will bind to DictionaryService in `onCreate`, send a word to it, receive a defintion back, and display it onscreen.
+
+Note it also unbinds the services upon navigating away, this is intended so you don't accidentally stumble on the solution if you had DictionaryApp open already while launching AttackerApp directly from Android Studio or something.
 
 ## solution
 
