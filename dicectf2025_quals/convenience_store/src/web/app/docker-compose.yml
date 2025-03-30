@@ -1,0 +1,15 @@
+# For local development only!
+# Actual deployment is different and per instance.
+# Password will be randomized. Flag will be the real flag.
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_SECRET_KEY=secret
+      - ADMIN_PASSWORD=fakepassword
+      - THE_FLAG=fakeflag1234

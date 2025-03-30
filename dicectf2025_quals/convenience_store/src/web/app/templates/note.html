@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <!-- Bootstrap CSS -->
+	<link href="{{url_for('static', filename='bootstrap.min.css')}}" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3">
+	<title>convenience store</title>
+</head>
+
+<body>
+  {% if note is none %}
+  <div class="alert alert-danger" role="alert">
+    No notes available!
+  </div>
+  {% else %}
+  <h1>{{ note.title }}</h1>
+  <p>{{ note.body }}</p>
+  {% endif %}
+
+
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+	<script src="{{url_for('static', filename='jquery-3.7.1.slim.min.js')}}" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="></script>
+	<script src="{{url_for('static', filename='popper.min.js')}}" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB"></script>
+	<script src="{{url_for('static', filename='bootstrap.bundle.min.js')}}"
+		integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"></script>
+</body>
+
+</html>

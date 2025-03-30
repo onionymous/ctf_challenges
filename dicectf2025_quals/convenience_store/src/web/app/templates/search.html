@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <!-- Bootstrap CSS -->
+  <link href="{{url_for('static', filename='bootstrap.min.css')}}" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3">
+	<title>convenience store</title>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">convenience store</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/notes">All Notes</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/search">Search Notes <span class="sr-only">(current)</span></a>
+        </li>
+      </ul>
+      <form class="form-inline my-2 my-lg-0" action="/logout">
+        <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">Logout</button>
+      </form>
+    </div>
+  </nav>
+
+  {% if current_user.is_authenticated %}
+  <div class="container my-4">
+    <div class="container my-4">
+      <form method="GET" action="/search">
+        <div class="form-group">
+          <label for="exampleFormControlInput1">query</label>
+          <input type="text" name="query" class="form-control" id="exampleFormControlInput1"
+            placeholder="Notes with content">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+    </div>
+    {% for note in notes %}
+    <div style="float: left; padding: 5px; border: 1px black solid">
+      <!-- image from: https://www.flaticon.com/free-icon/note_4371047 -->
+      <img src="{{ inlined_note_b64 }}" width="64" height="64" />
+      <a href="/note/{{ note.id }}">{{ note.title }}</a>
+    </div>
+    {% endfor %}
+  </div>
+
+  {%else %}
+  <div class="alert alert-danger" role="alert">
+    You need to login
+  </div>
+  {% endif %}
+
+
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="{{url_for('static', filename='jquery-3.7.1.slim.min.js')}}" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="></script>
+	<script src="{{url_for('static', filename='popper.min.js')}}" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB"></script>
+	<script src="{{url_for('static', filename='bootstrap.bundle.min.js')}}"
+		integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"></script>
+</body>
+
+</html>
